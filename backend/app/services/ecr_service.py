@@ -44,3 +44,4 @@ class EcrService:
         return True, ecr_uri, logs
 
 ecr_service = EcrService()
+

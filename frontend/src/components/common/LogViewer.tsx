@@ -131,3 +131,4 @@ export const LogViewer: React.FC<LogViewerProps> = ({
     </div>
   );
 };
+

@@ -453,3 +453,4 @@ export const AiAssistantView: React.FC<AiAssistantViewProps> = ({
     </div>
   );
 };
+

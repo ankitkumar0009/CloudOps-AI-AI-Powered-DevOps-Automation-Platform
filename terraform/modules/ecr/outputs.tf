@@ -5,3 +5,4 @@ output "repository_url" {
 output "repository_arn" {
   value = aws_ecr_repository.apps.arn
 }
+

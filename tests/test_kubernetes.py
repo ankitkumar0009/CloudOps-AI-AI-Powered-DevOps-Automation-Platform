@@ -29,3 +29,4 @@ def test_rollback_deployment():
     res = kubernetes_service.rollback_deployment("payment-gateway", 2, "production")
     assert res["success"] is True
     assert "kubectl rollout undo deployment/payment-gateway" in res["command"]
+

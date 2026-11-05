@@ -15,3 +15,4 @@ def test_terraform_execute_validate():
 def test_terraform_execute_invalid_action():
     with pytest.raises(ValueError):
         terraform_service.execute("malicious_command")
+

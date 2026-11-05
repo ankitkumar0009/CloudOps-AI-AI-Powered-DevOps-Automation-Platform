@@ -234,3 +234,4 @@ export const HistoryRollbackView: React.FC<HistoryRollbackViewProps> = ({
     </div>
   );
 };
+

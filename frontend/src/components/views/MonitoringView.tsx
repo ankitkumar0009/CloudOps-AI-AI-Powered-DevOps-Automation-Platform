@@ -25,6 +25,7 @@ import {
 
 export const MonitoringView: React.FC = () => {
   const [timeRange, setTimeRange] = useState('1h');
+  const [showEmbeddedGrafana, setShowEmbeddedGrafana] = useState(false);
 
   const cpuData = [
     { time: '16:00', payment: 38, auth: 22, orders: 12 },
@@ -82,17 +83,51 @@ export const MonitoringView: React.FC = () => {
             ))}
           </div>
 
+          <button
+            onClick={() => setShowEmbeddedGrafana(!showEmbeddedGrafana)}
+            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 border border-slate-700 transition flex items-center gap-1.5"
+          >
+            <span>{showEmbeddedGrafana ? 'Hide Live Portal' : 'Preview Portal'}</span>
+          </button>
+
           <a
             href="http://localhost:3001"
             target="_blank"
             rel="noreferrer"
-            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-lg bg-orange-600/20 hover:bg-orange-600/30 text-xs font-medium text-orange-300 border border-orange-500/40 transition flex items-center gap-1.5 shadow-sm"
           >
-            <span>Open Grafana</span>
-            <ExternalLink className="w-3 h-3" />
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Open Grafana (:3001)</span>
+            <ExternalLink className="w-3 h-3 text-orange-400" />
           </a>
         </div>
       </div>
+
+      {showEmbeddedGrafana && (
+        <div className="bg-[#181b1f] border border-orange-500/30 rounded-xl overflow-hidden shadow-2xl">
+          <div className="bg-[#111217] px-4 py-2 border-b border-slate-800 flex items-center justify-between">
+            <div className="flex items-center space-x-2 text-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span className="text-white font-semibold">Grafana Live Observability Portal</span>
+              <span className="text-slate-500 font-mono text-[11px]">(http://localhost:3001)</span>
+            </div>
+            <a
+              href="http://localhost:3001"
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-orange-400 hover:text-orange-300 flex items-center gap-1"
+            >
+              <span>Full Screen / New Tab</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+          <iframe
+            src="http://localhost:3001"
+            title="Grafana Observability Portal"
+            className="w-full h-[650px] border-none"
+          />
+        </div>
+      )}
 
       {/* Top Metrics Stat Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -250,3 +285,4 @@ export const MonitoringView: React.FC = () => {
     </div>
   );
 };
+

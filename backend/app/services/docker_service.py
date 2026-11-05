@@ -111,3 +111,4 @@ CMD ["node", "src/index.js"]
         return True, logs, image_data
 
 docker_service = DockerService()
+

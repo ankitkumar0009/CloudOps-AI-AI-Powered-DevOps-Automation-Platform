@@ -155,3 +155,4 @@ class RollbackRecord(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
 
     deployment = relationship("Deployment", back_populates="rollbacks")
+

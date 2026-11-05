@@ -118,3 +118,4 @@ export const AwsView: React.FC<AwsViewProps> = ({ resources }) => {
     </div>
   );
 };
+

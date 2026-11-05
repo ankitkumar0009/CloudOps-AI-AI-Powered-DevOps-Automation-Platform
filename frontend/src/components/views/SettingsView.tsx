@@ -155,3 +155,4 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onSaveToast }) => {
     </div>
   );
 };
+

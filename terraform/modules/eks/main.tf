@@ -37,3 +37,4 @@ resource "aws_eks_node_group" "nodes" {
 
   depends_on = [aws_eks_cluster.main]
 }
+

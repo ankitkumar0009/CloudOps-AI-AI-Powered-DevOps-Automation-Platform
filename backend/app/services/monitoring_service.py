@@ -19,3 +19,4 @@ class MonitoringService:
         }
 
 monitoring_service = MonitoringService()
+

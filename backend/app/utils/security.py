@@ -47,3 +47,4 @@ def sanitize_and_validate_command(cmd: str) -> bool:
         return False
 
     return True
+

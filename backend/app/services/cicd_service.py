@@ -53,3 +53,4 @@ class CicdService:
         }
 
 cicd_service = CicdService()
+

@@ -22,3 +22,4 @@ output "github_oidc_role_arn" {
   description = "IAM Role ARN for GitHub Actions OIDC"
   value       = module.iam.github_oidc_role_arn
 }
+

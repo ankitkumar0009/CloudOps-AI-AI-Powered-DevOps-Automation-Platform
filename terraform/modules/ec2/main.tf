@@ -44,3 +44,4 @@ resource "aws_instance" "bastion" {
     Name = "${var.project_name}-${var.environment}-bastion"
   }
 }
+

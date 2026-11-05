@@ -71,3 +71,4 @@ resource "aws_iam_role_policy_attachment" "github_ecr" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
   role       = aws_iam_role.github_oidc.name
 }
+

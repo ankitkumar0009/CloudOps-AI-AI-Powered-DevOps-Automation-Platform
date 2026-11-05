@@ -222,3 +222,4 @@ export const PipelinesView: React.FC<PipelinesViewProps> = ({
     </div>
   );
 };
+

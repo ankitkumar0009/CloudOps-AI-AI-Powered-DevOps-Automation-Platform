@@ -198,3 +198,4 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, o
     </div>
   );
 };
+

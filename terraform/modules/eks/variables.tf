@@ -29,3 +29,4 @@ variable "node_role_arn" {
 variable "instance_types" {
   type = list(string)
 }
+

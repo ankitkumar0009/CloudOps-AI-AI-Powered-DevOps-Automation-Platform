@@ -326,6 +326,11 @@ def diagnose_log(req: AiDiagnoseRequest, db: Session = Depends(get_db)):
 def chat_ai(req: AiChatRequest):
     return ai_service.chat(req.message, req.history)
 
+# --- Monitoring ---
+@api_router.get("/monitoring/metrics")
+def get_monitoring_metrics():
+    return monitoring_service.get_metrics_summary()
+
 # --- Rollbacks ---
 @api_router.get("/rollbacks", response_model=List[RollbackResponse])
 def get_rollbacks(db: Session = Depends(get_db)):
@@ -513,3 +518,4 @@ def seed_rollbacks(db: Session):
         db.commit()
     except Exception:
         db.rollback()
+

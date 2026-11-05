@@ -24,3 +24,4 @@ def test_build_image_mock():
     assert img_data["repository"] == "test-app"
     assert img_data["tag"] == "v1.0.0"
     assert img_data["size_mb"] > 0
+

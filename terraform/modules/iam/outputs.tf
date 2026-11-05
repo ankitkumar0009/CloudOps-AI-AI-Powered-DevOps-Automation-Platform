@@ -9,3 +9,4 @@ output "eks_node_role_arn" {
 output "github_oidc_role_arn" {
   value = aws_iam_role.github_oidc.arn
 }
+
