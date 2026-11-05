@@ -18,6 +18,7 @@ jobs:
   deploy-to-eks:
     name: Build, Publish to ECR & Rollout to EKS
     runs-on: ubuntu-latest
+    if: "${{ secrets.AWS_ROLE_ARN != '' }}"
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
