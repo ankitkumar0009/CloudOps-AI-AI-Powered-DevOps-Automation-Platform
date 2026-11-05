@@ -91,6 +91,17 @@ export const MonitoringView: React.FC = () => {
           </button>
 
           <a
+            href="http://localhost:9090"
+            target="_blank"
+            rel="noreferrer"
+            className="px-3 py-1.5 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-xs font-medium text-red-300 border border-red-500/40 transition flex items-center gap-1.5 shadow-sm"
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Prometheus (:9090)</span>
+            <ExternalLink className="w-3 h-3 text-red-400" />
+          </a>
+
+          <a
             href="http://localhost:3001"
             target="_blank"
             rel="noreferrer"
