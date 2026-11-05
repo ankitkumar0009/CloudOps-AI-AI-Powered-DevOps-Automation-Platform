@@ -121,5 +121,12 @@ def main():
     print("  Open http://localhost:3000 in your browser to access the platform.")
     print("=" * 70 + "\n")
 
+    try:
+        while True:
+            time.sleep(2)
+    except KeyboardInterrupt:
+        print("Shutting down platform processes...")
+
 if __name__ == "__main__":
     main()
+

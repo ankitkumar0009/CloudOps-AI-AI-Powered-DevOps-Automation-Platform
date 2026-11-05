@@ -11,10 +11,16 @@ import {
   ArrowUpRight,
   ShieldCheck,
   FileCode,
-  Sliders
+  Sliders,
+  GitBranch,
+  Split,
+  ToggleLeft,
+  ToggleRight,
+  Zap
 } from 'lucide-react';
 import { KubernetesPod, KubernetesDeployment } from '../../types';
 import { StatusBadge } from '../common/StatusBadge';
+import { api } from '../../services/api';
 
 interface KubernetesViewProps {
   pods: KubernetesPod[];
@@ -22,6 +28,7 @@ interface KubernetesViewProps {
   events: string[];
   onScaleDeployment: (name: string, replicas: number) => Promise<any>;
   onRefresh: () => void;
+  onAddToast?: (type: 'success' | 'error' | 'info', title: string, message?: string) => void;
 }
 
 export const KubernetesView: React.FC<KubernetesViewProps> = ({
@@ -30,12 +37,16 @@ export const KubernetesView: React.FC<KubernetesViewProps> = ({
   events,
   onScaleDeployment,
   onRefresh,
+  onAddToast,
 }) => {
   const [selectedNamespace, setSelectedNamespace] = useState<string>('all');
   const [scalingName, setScalingName] = useState<string | null>(null);
   const [targetReplicas, setTargetReplicas] = useState<number>(3);
-  const [activeTab, setActiveTab] = useState<'pods' | 'deployments' | 'yaml'>('pods');
+  const [activeTab, setActiveTab] = useState<'pods' | 'deployments' | 'strategies' | 'yaml'>('pods');
   const [copiedYaml, setCopiedYaml] = useState(false);
+  const [activeColor, setActiveColor] = useState<'blue' | 'green'>('green');
+  const [canaryWeight, setCanaryWeight] = useState<number>(25);
+  const [strategyProcessing, setStrategyProcessing] = useState(false);
 
   const filteredPods = selectedNamespace === 'all'
     ? pods
@@ -113,6 +124,34 @@ spec:
     setScalingName(null);
   };
 
+  const handleSwitchBlueGreen = async (target: 'blue' | 'green') => {
+    setStrategyProcessing(true);
+    try {
+      await api.switchBlueGreen('auth-service', target, 'production');
+      setActiveColor(target);
+      onAddToast?.('success', 'Blue-Green Router Switched', `100% of live production traffic switched to ${target.toUpperCase()} environment.`);
+      onRefresh();
+    } catch {
+      onAddToast?.('error', 'Switch Failed', 'Unable to adjust router selector.');
+    } finally {
+      setStrategyProcessing(false);
+    }
+  };
+
+  const handleAdjustCanary = async (weight: number) => {
+    setStrategyProcessing(true);
+    try {
+      await api.adjustCanary('orders-api', weight, 'staging');
+      setCanaryWeight(weight);
+      onAddToast?.('success', 'Canary Traffic Adjusted', `Canary routing weight set to ${weight}%.`);
+      onRefresh();
+    } catch {
+      onAddToast?.('error', 'Canary Adjustment Failed', 'Unable to adjust weight.');
+    } finally {
+      setStrategyProcessing(false);
+    }
+  };
+
   const copyYaml = () => {
     navigator.clipboard.writeText(sampleK8sYaml);
     setCopiedYaml(true);
@@ -129,7 +168,7 @@ spec:
             Amazon EKS & Local Minikube Orchestration
           </h2>
           <p className="text-xs text-slate-400">
-            Real-time pod lifecycle telemetry, declarative deployment scaling, and cluster event streaming.
+            Real-time pod lifecycle telemetry, declarative deployment scaling, and multi-strategy traffic routing.
           </p>
         </div>
 
@@ -178,6 +217,17 @@ spec:
         >
           <Layers className="w-3.5 h-3.5" />
           <span>Deployments ({filteredDeployments.length})</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('strategies')}
+          className={`text-xs font-semibold pb-2 transition flex items-center gap-1.5 ${
+            activeTab === 'strategies'
+              ? 'text-indigo-400 border-b-2 border-indigo-500'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <GitBranch className="w-3.5 h-3.5" />
+          <span>Deployment Strategies (Blue-Green / Canary)</span>
         </button>
         <button
           onClick={() => setActiveTab('yaml')}
@@ -245,7 +295,8 @@ spec:
                 <tr>
                   <th className="py-3 px-4">Deployment</th>
                   <th className="py-3 px-4">Namespace</th>
-                  <th className="py-3 px-4">Replicas (Avail/Desired)</th>
+                  <th className="py-3 px-4">Replicas</th>
+                  <th className="py-3 px-4">Strategy</th>
                   <th className="py-3 px-4">Container Image</th>
                   <th className="py-3 px-4">Health Status</th>
                   <th className="py-3 px-4 text-right">Actions</th>
@@ -258,6 +309,9 @@ spec:
                     <td className="py-3 px-4 font-mono text-indigo-400">{d.namespace}</td>
                     <td className="py-3 px-4 font-mono">
                       <span className="text-emerald-400 font-bold">{d.available_replicas}</span> / {d.desired_replicas}
+                    </td>
+                    <td className="py-3 px-4 font-mono text-[11px] text-cyan-400">
+                      {d.strategy || "RollingUpdate"}
                     </td>
                     <td className="py-3 px-4 font-mono text-[11px] text-slate-400 max-w-xs truncate">{d.image}</td>
                     <td className="py-3 px-4">
@@ -272,7 +326,7 @@ spec:
                         className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs transition inline-flex items-center gap-1.5 border border-slate-700"
                       >
                         <Sliders className="w-3.5 h-3.5 text-indigo-400" />
-                        <span>Scale Replicas</span>
+                        <span>Scale</span>
                       </button>
                     </td>
                   </tr>
@@ -283,7 +337,123 @@ spec:
         </div>
       )}
 
-      {/* Tab 3: YAML Manifest Generator */}
+      {/* Tab 3: Deployment Strategies (Blue-Green & Canary) */}
+      {activeTab === 'strategies' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Blue-Green Deployment Card */}
+          <div className="p-6 rounded-2xl bg-[#0f172a] border border-slate-800 space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="space-y-0.5">
+                <span className="text-[10px] font-bold text-cyan-400 uppercase font-mono px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20">
+                  Zero-Downtime Router
+                </span>
+                <h3 className="text-sm font-bold text-white mt-1">Blue-Green Deployment (auth-service)</h3>
+              </div>
+              <span className={`text-xs font-mono font-bold px-2.5 py-1 rounded-full uppercase ${
+                activeColor === 'green' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+              }`}>
+                Live: {activeColor}
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Maintains two identical production environments (Blue and Green). Traffic router instantly flips live service selector with zero connection drop.
+            </p>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className={`p-4 rounded-xl border transition-all ${
+                activeColor === 'blue' ? 'bg-blue-950/30 border-blue-500 text-blue-200' : 'bg-slate-900 border-slate-800 text-slate-400'
+              }`}>
+                <span className="text-xs font-bold block uppercase font-mono">Blue Environment</span>
+                <span className="text-[11px] block mt-1">auth-service:v1.7.9 (Stable)</span>
+                <span className="text-[10px] font-mono block mt-2">{activeColor === 'blue' ? '● Serving 100% Traffic' : '○ Standby Idle'}</span>
+              </div>
+
+              <div className={`p-4 rounded-xl border transition-all ${
+                activeColor === 'green' ? 'bg-emerald-950/30 border-emerald-500 text-emerald-200' : 'bg-slate-900 border-slate-800 text-slate-400'
+              }`}>
+                <span className="text-xs font-bold block uppercase font-mono">Green Environment</span>
+                <span className="text-[11px] block mt-1">auth-service:v1.8.0 (Active)</span>
+                <span className="text-[10px] font-mono block mt-2">{activeColor === 'green' ? '● Serving 100% Traffic' : '○ Standby Idle'}</span>
+              </div>
+            </div>
+
+            <div className="pt-2 flex items-center justify-between border-t border-slate-800">
+              <span className="text-xs text-slate-400">Router Action:</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleSwitchBlueGreen('blue')}
+                  disabled={strategyProcessing || activeColor === 'blue'}
+                  className="px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/30 text-xs font-semibold transition disabled:opacity-40"
+                >
+                  Switch to Blue
+                </button>
+                <button
+                  onClick={() => handleSwitchBlueGreen('green')}
+                  disabled={strategyProcessing || activeColor === 'green'}
+                  className="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 text-xs font-semibold transition disabled:opacity-40"
+                >
+                  Switch to Green
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Canary Deployment Card */}
+          <div className="p-6 rounded-2xl bg-[#0f172a] border border-slate-800 space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="space-y-0.5">
+                <span className="text-[10px] font-bold text-amber-400 uppercase font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
+                  Weighted Traffic Splitter
+                </span>
+                <h3 className="text-sm font-bold text-white mt-1">Canary Deployment (orders-api)</h3>
+              </div>
+              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                Canary: {canaryWeight}%
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Rolls out updates incrementally to a fraction of user traffic. Telemetry automatically monitors P99 latency and error rates before full promotion.
+            </p>
+
+            {/* Visual Traffic Bar */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs font-mono">
+                <span className="text-slate-400">Primary Baseline: {100 - canaryWeight}%</span>
+                <span className="text-amber-400 font-bold">Canary v3.1: {canaryWeight}%</span>
+              </div>
+              <div className="h-3 w-full bg-slate-900 rounded-full overflow-hidden flex border border-slate-800">
+                <div style={{ width: `${100 - canaryWeight}%` }} className="bg-indigo-600 h-full transition-all" />
+                <div style={{ width: `${canaryWeight}%` }} className="bg-amber-400 h-full transition-all" />
+              </div>
+            </div>
+
+            {/* Quick Weight Adjust Buttons */}
+            <div className="pt-2 flex items-center justify-between border-t border-slate-800">
+              <span className="text-xs text-slate-400">Set Canary Split:</span>
+              <div className="flex items-center gap-2">
+                {[10, 25, 50, 100].map((w) => (
+                  <button
+                    key={w}
+                    onClick={() => handleAdjustCanary(w)}
+                    disabled={strategyProcessing}
+                    className={`px-2.5 py-1 rounded-md text-xs font-mono font-semibold transition ${
+                      canaryWeight === w
+                        ? 'bg-amber-500 text-black shadow-md shadow-amber-500/30'
+                        : 'bg-slate-800 text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    {w === 100 ? '100% (Promote)' : `${w}%`}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 4: YAML Manifest Generator */}
       {activeTab === 'yaml' && (
         <div className="bg-[#111827]/80 border border-slate-800 rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
@@ -370,4 +540,3 @@ spec:
     </div>
   );
 };
-

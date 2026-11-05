@@ -7,7 +7,12 @@ from app.models.entities import (
     KubernetesCluster,
     TerraformExecution,
     AiAnalysisRecord,
-    RollbackRecord
+    RollbackRecord,
+    Incident,
+    AiRecommendation,
+    RecoveryAction,
+    SecurityScan,
+    AuditLog
 )
 
 __all__ = [
@@ -19,6 +24,10 @@ __all__ = [
     "KubernetesCluster",
     "TerraformExecution",
     "AiAnalysisRecord",
-    "RollbackRecord"
+    "RollbackRecord",
+    "Incident",
+    "AiRecommendation",
+    "RecoveryAction",
+    "SecurityScan",
+    "AuditLog"
 ]
-

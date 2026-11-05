@@ -14,6 +14,7 @@ from app.api.routes import (
     get_rollbacks
 )
 from app.schemas import ProjectCreate
+from app.models import Project
 
 @pytest.fixture(scope="module", autouse=True)
 def setup_database():
@@ -66,6 +67,10 @@ def test_create_and_delete_project():
             environment="staging",
             env_vars={"ENV": "test"}
         )
+        existing = db.query(Project).filter(Project.name == "integration-test-service").first()
+        if existing:
+            db.delete(existing)
+            db.commit()
         created = create_project(new_proj_data, db)
         assert created.name == "integration-test-service"
         assert created.id.startswith("proj-")

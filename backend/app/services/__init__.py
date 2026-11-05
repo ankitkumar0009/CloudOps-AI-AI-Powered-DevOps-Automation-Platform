@@ -6,6 +6,9 @@ from app.services.terraform_service import terraform_service
 from app.services.cicd_service import cicd_service
 from app.services.monitoring_service import monitoring_service
 from app.services.ai_service import ai_service
+from app.services.github_service import github_service
+from app.services.devsecops_service import devsecops_service
+from app.services.incident_service import incident_service
 
 __all__ = [
     "docker_service",
@@ -15,6 +18,8 @@ __all__ = [
     "terraform_service",
     "cicd_service",
     "monitoring_service",
-    "ai_service"
+    "ai_service",
+    "github_service",
+    "devsecops_service",
+    "incident_service"
 ]
-

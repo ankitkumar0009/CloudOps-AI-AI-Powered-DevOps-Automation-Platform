@@ -40,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({
   const current = titles[currentSection] || { title: 'DevOps Platform', subtitle: 'Automation dashboard' };
 
   return (
-    <header className="h-16 bg-[#0d1322]/90 backdrop-blur border-b border-slate-800 px-6 flex items-center justify-between z-10 shrink-0">
+    <header className="h-16 bg-[#080d1c]/70 backdrop-blur-xl border-b border-slate-800/60 px-6 flex items-center justify-between z-10 shrink-0 shadow-lg shadow-black/20">
       <div className="flex flex-col">
         <h1 className="text-base font-semibold text-white tracking-tight flex items-center gap-2">
           {current.title}

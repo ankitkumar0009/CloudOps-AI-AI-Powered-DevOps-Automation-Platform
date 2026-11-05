@@ -20,7 +20,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   badge,
 }) => {
   return (
-    <div className="bg-[#111827]/70 border border-slate-800/90 rounded-xl p-4 shadow-sm hover:border-slate-700/80 transition-colors">
+    <div className="bg-[#080d1c]/65 backdrop-blur-md border border-slate-800/70 rounded-xl p-4 shadow-lg hover:border-indigo-500/40 transition-all hover:bg-[#080d1c]/80 group">
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs font-medium text-slate-400">{title}</span>
         <div className={`p-2 rounded-lg bg-slate-900 border border-slate-800 ${iconColor}`}>

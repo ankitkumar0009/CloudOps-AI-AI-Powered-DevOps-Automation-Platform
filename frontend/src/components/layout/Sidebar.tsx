@@ -12,7 +12,10 @@ import {
   History,
   Settings,
   ShieldCheck,
-  Terminal
+  Terminal,
+  AlertTriangle,
+  Zap,
+  ShieldAlert
 } from 'lucide-react';
 
 export type SectionId =
@@ -21,6 +24,9 @@ export type SectionId =
   | 'pipelines'
   | 'docker'
   | 'kubernetes'
+  | 'incidents'
+  | 'auto-healing'
+  | 'security'
   | 'aws'
   | 'terraform'
   | 'ai-assistant'
@@ -41,12 +47,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenTerminal,
   isBackendConnected,
 }) => {
-  const menuItems: { id: SectionId; label: string; icon: React.ComponentType<{ className?: string }>; badge?: string }[] = [
+  const menuItems: { id: SectionId; label: string; icon: React.ComponentType<{ className?: string }>; badge?: string; badgeColor?: string }[] = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'projects', label: 'Projects', icon: Layers, badge: '4' },
     { id: 'pipelines', label: 'CI/CD Pipelines', icon: GitBranch },
     { id: 'docker', label: 'Docker Images', icon: Box },
-    { id: 'kubernetes', label: 'Kubernetes Clusters', icon: Server, badge: '9 pods' },
+    { id: 'kubernetes', label: 'Kubernetes Clusters', icon: Server, badge: 'Strategies' },
+    { id: 'incidents', label: 'AI Incident Manager', icon: AlertTriangle, badge: 'Live', badgeColor: 'bg-rose-500/20 text-rose-400 border border-rose-500/30' },
+    { id: 'auto-healing', label: 'Auto-Healing Center', icon: Zap, badge: 'Approval', badgeColor: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' },
+    { id: 'security', label: 'DevSecOps Security', icon: ShieldAlert, badge: 'Gates', badgeColor: 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' },
     { id: 'aws', label: 'AWS Infrastructure', icon: Cloud },
     { id: 'terraform', label: 'Terraform Automation', icon: FileCode2 },
     { id: 'ai-assistant', label: 'AI DevOps Assistant', icon: Sparkles, badge: 'Gemini' },
@@ -56,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="w-64 bg-[#0d1322] border-r border-slate-800 flex flex-col h-screen select-none shrink-0">
+    <aside className="w-64 bg-[#080d1c]/80 backdrop-blur-2xl border-r border-slate-800/60 flex flex-col h-screen select-none shrink-0 shadow-2xl shadow-black/40 z-20">
       {/* Brand Header */}
       <div className="h-16 flex items-center px-5 border-b border-slate-800/80 gap-3">
         <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/20">
@@ -64,9 +73,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
         <div className="flex flex-col">
           <span className="font-bold text-sm tracking-tight text-white flex items-center gap-1.5">
-            CloudOps <span className="text-xs px-1.5 py-0.2 bg-indigo-500/20 text-indigo-400 rounded border border-indigo-500/30 font-mono">AI</span>
+            CloudOps <span className="text-xs px-1.5 py-0.2 bg-indigo-500/20 text-indigo-400 rounded border border-indigo-500/30 font-mono">AI 2.0</span>
           </span>
-          <span className="text-[10px] text-slate-400 font-medium">DevOps Automation v1.0</span>
+          <span className="text-[10px] text-slate-400 font-medium">DevOps & SRE Platform</span>
         </div>
       </div>
 
@@ -97,13 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <span className="truncate">{item.label}</span>
               </div>
               {item.badge && (
-                <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-medium ${
-                    isActive
-                      ? 'bg-indigo-700 text-indigo-100'
-                      : 'bg-slate-800 text-slate-400 border border-slate-700/50'
-                  }`}
-                >
+                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded font-bold ${item.badgeColor || (isActive ? 'bg-indigo-700 text-white' : 'bg-slate-800 text-slate-400')}`}>
                   {item.badge}
                 </span>
               )}
@@ -112,31 +115,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </nav>
 
-      {/* Terminal Quick Launcher & Health Badge */}
-      <div className="p-3 border-t border-slate-800/80 space-y-2">
+      {/* Terminal Quick Launcher */}
+      <div className="p-3 border-t border-slate-800/80">
         <button
           onClick={onOpenTerminal}
-          className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-slate-900 border border-slate-700/80 text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition shadow-inner font-mono"
+          className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 font-mono group transition"
         >
-          <Terminal className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Interactive Console</span>
-        </button>
-
-        <div className="flex items-center justify-between px-2 py-1.5 bg-slate-900/60 rounded-md border border-slate-800 text-[11px]">
-          <span className="text-slate-400">Backend API</span>
-          <div className="flex items-center gap-1.5 font-mono text-[10px]">
-            <span
-              className={`w-2 h-2 rounded-full ${
-                isBackendConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
-              }`}
-            />
-            <span className={isBackendConnected ? 'text-emerald-400' : 'text-amber-400'}>
-              {isBackendConnected ? 'Connected' : 'Demo Mode'}
-            </span>
+          <div className="flex items-center gap-2">
+            <Terminal className="w-4 h-4 text-emerald-400" />
+            <span>Interactive CLI</span>
           </div>
+          <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400">Ctrl+`</span>
+        </button>
+      </div>
+
+      {/* Status Footer */}
+      <div className="px-5 py-3 bg-[#080d1c]/90 backdrop-blur-md border-t border-slate-800/60 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full ${isBackendConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+          <span className="text-[11px] font-mono text-slate-400">
+            {isBackendConnected ? 'EKS Prod (us-east-1)' : 'Offline / Standby'}
+          </span>
         </div>
+        <span className="text-[10px] font-mono text-indigo-400 font-bold">v2.0</span>
       </div>
     </aside>
   );
 };
-

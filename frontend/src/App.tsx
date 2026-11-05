@@ -3,12 +3,16 @@ import { Sidebar, SectionId } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { TerminalModal } from './components/layout/TerminalModal';
 import { ToastContainer, ToastMessage } from './components/common/Toast';
+import { CloudUniverse } from './components/background/CloudUniverse';
 
 import { OverviewView } from './components/views/OverviewView';
 import { ProjectsView } from './components/views/ProjectsView';
 import { PipelinesView } from './components/views/PipelinesView';
 import { DockerView } from './components/views/DockerView';
 import { KubernetesView } from './components/views/KubernetesView';
+import { IncidentsView } from './components/views/IncidentsView';
+import { AutoHealingView } from './components/views/AutoHealingView';
+import { SecurityView } from './components/views/SecurityView';
 import { AwsView } from './components/views/AwsView';
 import { TerraformView } from './components/views/TerraformView';
 import { AiAssistantView } from './components/views/AiAssistantView';
@@ -220,7 +224,10 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#090d16] text-slate-100">
+    <div className="relative flex h-screen w-screen overflow-hidden bg-transparent text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-200">
+      {/* 3D Animated Background - Digital Cloud Universe */}
+      <CloudUniverse />
+
       {/* Sidebar Navigation */}
       <Sidebar
         currentSection={currentSection}
@@ -282,6 +289,7 @@ export const App: React.FC = () => {
               deployments={k8sDeployments}
               events={k8sEvents}
               onScaleDeployment={handleScaleDeployment}
+              onAddToast={addToast}
               onRefresh={async () => {
                 const k8s = await api.getKubernetesStatus();
                 setK8sPods(k8s.pods);
@@ -289,6 +297,24 @@ export const App: React.FC = () => {
                 setK8sEvents(k8s.events);
                 addToast('info', 'Kubernetes Synchronized', 'Updated pods and events from cluster.');
               }}
+            />
+          )}
+
+          {currentSection === 'incidents' && (
+            <IncidentsView
+              onNavigateToHealing={() => setCurrentSection('auto-healing')}
+            />
+          )}
+
+          {currentSection === 'auto-healing' && (
+            <AutoHealingView
+              onAddToast={addToast}
+            />
+          )}
+
+          {currentSection === 'security' && (
+            <SecurityView
+              onAddToast={addToast}
             />
           )}
 

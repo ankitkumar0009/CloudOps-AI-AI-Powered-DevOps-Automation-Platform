@@ -55,7 +55,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ overview, onNavigate
   return (
     <div className="space-y-6">
       {/* Top Banner / Callout */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-900/60 via-slate-900 to-slate-900 border border-indigo-500/30 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-950/60 via-[#080d1c]/70 to-[#080d1c]/80 backdrop-blur-md border border-indigo-500/30 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xl">
         <div className="space-y-1.5 z-10">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[11px] font-mono">
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
@@ -139,7 +139,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ overview, onNavigate
       {/* Real-time Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Cluster Resource Telemetry */}
-        <div className="bg-[#111827]/70 border border-slate-800 rounded-xl p-5 shadow-sm">
+        <div className="bg-[#080d1c]/65 backdrop-blur-md border border-slate-800/70 rounded-xl p-5 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
@@ -215,7 +215,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ overview, onNavigate
       </div>
 
       {/* Recent Deployment Activity Feed */}
-      <div className="bg-[#111827]/70 border border-slate-800 rounded-xl p-5">
+      <div className="bg-[#080d1c]/65 backdrop-blur-md border border-slate-800/70 rounded-xl p-5 shadow-lg">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-sm font-semibold text-white tracking-tight">Recent Deployment Activity</h3>

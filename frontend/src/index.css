@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-[#090d16] text-slate-100 antialiased min-h-screen;
+    @apply bg-[#03050D] text-slate-100 antialiased min-h-screen overflow-hidden;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   }
 
