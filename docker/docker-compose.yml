@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # Database Layer
+  postgres:
+    image: postgres:16-alpine
+    container_name: devops-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: devops_db
+      POSTGRES_USER: devops_user
+      POSTGRES_PASSWORD: devops_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devops_user -d devops_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend Service
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: devops-backend
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://devops_user:devops_password@postgres:5432/devops_db
+      AWS_REGION: us-east-1
+      AWS_ROLE_ARN: arn:aws:iam::123456789012:role/GitHubActions-EKS-Deployer-Role
+      AWS_ECR_REGISTRY: 123456789012.dkr.ecr.us-east-1.amazonaws.com
+      EKS_CLUSTER_NAME: eks-prod-cluster
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      DEMO_MODE: "false"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # React + Vite Frontend
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: devops-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  # Prometheus Monitoring
+  prometheus:
+    image: prom/prometheus:v2.50.1
+    container_name: devops-prometheus
+    restart: always
+    volumes:
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  # Grafana Dashboards
+  grafana:
+    image: grafana/grafana:10.3.3
+    container_name: devops-grafana
+    restart: always
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+
+volumes:
+  postgres_data:

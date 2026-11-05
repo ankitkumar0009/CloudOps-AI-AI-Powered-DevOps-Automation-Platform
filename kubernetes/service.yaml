@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: devops-backend-svc
+  namespace: cloudops-devops
+  labels:
+    app: devops-backend
+spec:
+  type: ClusterIP
+  selector:
+    app: devops-backend
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devops-frontend-svc
+  namespace: cloudops-devops
+  labels:
+    app: devops-frontend
+spec:
+  type: LoadBalancer
+  selector:
+    app: devops-frontend
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000

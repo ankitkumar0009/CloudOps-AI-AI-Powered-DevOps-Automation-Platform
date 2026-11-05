@@ -1,0 +1,11 @@
+output "eks_cluster_role_arn" {
+  value = aws_iam_role.cluster.arn
+}
+
+output "eks_node_role_arn" {
+  value = aws_iam_role.node.arn
+}
+
+output "github_oidc_role_arn" {
+  value = aws_iam_role.github_oidc.arn
+}
